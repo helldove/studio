@@ -8,21 +8,24 @@ import { useMemo, useState, useEffect } from "react";
 import { useUnmount } from "react-use";
 
 import Icon from "@foxglove/studio-base/components/Icon";
+import MesssagePathSyntaxHelp from "@foxglove/studio-base/components/MessagePathSyntax/index.help.md";
 import { SidebarContent } from "@foxglove/studio-base/components/SidebarContent";
 import TextContent from "@foxglove/studio-base/components/TextContent";
 import { useSelectedPanels } from "@foxglove/studio-base/context/CurrentLayoutContext";
 import { PanelInfo, usePanelCatalog } from "@foxglove/studio-base/context/PanelCatalogContext";
 import isDesktopApp from "@foxglove/studio-base/util/isDesktopApp";
 
-const productLinks = [
-  { text: "Foxglove Studio", url: "https://foxglove.dev/studio" },
-  { text: "Foxglove Data Platform", url: "https://foxglove.dev/data-platform" },
-];
+const appLinks = [{ text: "Message path syntax", content: MesssagePathSyntaxHelp }];
 
 const resourceLinks = [
   ...(isDesktopApp() ? [] : [{ text: "Desktop app", url: "https://foxglove.dev/download" }]),
   { text: "Read docs", url: "https://foxglove.dev/docs" },
   { text: "Join our community", url: "https://foxglove.dev/community" },
+];
+
+const productLinks = [
+  { text: "Foxglove Studio", url: "https://foxglove.dev/studio" },
+  { text: "Foxglove Data Platform", url: "https://foxglove.dev/data-platform" },
 ];
 
 const legalLinks = [
@@ -64,6 +67,8 @@ export default function HelpSidebar({
   const [isHomeView, setIsHomeView] = useState(
     isHomeViewForTests == undefined ? true : isHomeViewForTests,
   );
+  const [helpTitle, setHelpTitle] = useState("");
+  const [helpContent, setHelpContent] = useState("");
   const { panelDocToDisplay: panelType, setPanelDocToDisplay } = useSelectedPanels();
 
   const panelCatalog = usePanelCatalog();
@@ -78,6 +83,17 @@ export default function HelpSidebar({
     a.title.localeCompare(b.title, undefined, { ignorePunctuation: true, sensitivity: "base" });
   const panels = panelCatalog.getPanels();
   const sortedPanels = [...panels].sort(sortByTitle);
+
+  const displayedTitle = useMemo(() => {
+    if (isHomeView) {
+      return "Help";
+    }
+    if (panelInfo?.title) {
+      return panelInfo.title;
+    }
+
+    return helpTitle || "";
+  }, [isHomeView, helpTitle, panelInfo?.title]);
 
   useEffect(() => setIsHomeView(!panelInfo), [setIsHomeView, panelInfo]);
 
@@ -107,11 +123,30 @@ export default function HelpSidebar({
               </Icon>,
             ]
       }
-      title={isHomeView ? "Help" : panelInfo?.title ? panelInfo.title : ""}
+      title={displayedTitle}
     >
       <Stack>
         {isHomeView ? (
           <Stack tokens={{ childrenGap: theme.spacing.m }}>
+            <Stack.Item>
+              <Text styles={styles.subheader}>App</Text>
+              <Stack tokens={{ padding: `${theme.spacing.m} 0`, childrenGap: theme.spacing.s1 }}>
+                {appLinks.map(({ text, content }) => (
+                  <Link
+                    key={text}
+                    style={{ color: theme.semanticColors.bodyText }}
+                    onClick={() => {
+                      setIsHomeView(false);
+                      setHelpTitle(text);
+                      setHelpContent(content);
+                    }}
+                    styles={styles.link}
+                  >
+                    {text}
+                  </Link>
+                ))}
+              </Stack>
+            </Stack.Item>
             <Stack.Item>
               <Text styles={styles.subheader}>Panels</Text>
               <Stack tokens={{ padding: `${theme.spacing.m} 0`, childrenGap: theme.spacing.s1 }}>

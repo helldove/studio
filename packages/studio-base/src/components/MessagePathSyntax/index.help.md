@@ -1,5 +1,3 @@
-# Message path syntax
-
 Message path syntax is used throughout Studio to help you drill down to the exact information you want to inspect in your data.
 
 ## Topic
