@@ -25,7 +25,6 @@ import { useToasts } from "react-toast-notifications";
 import { useMount, useMountedState } from "react-use";
 
 import Log from "@foxglove/log";
-import { fromRFC3339String } from "@foxglove/rostime";
 import AccountSettings from "@foxglove/studio-base/components/AccountSettingsSidebar/AccountSettings";
 import ConnectionList from "@foxglove/studio-base/components/ConnectionList";
 import connectionHelpContent from "@foxglove/studio-base/components/ConnectionList/index.help.md";
@@ -70,8 +69,10 @@ import useAddPanel from "@foxglove/studio-base/hooks/useAddPanel";
 import { useCalloutDismissalBlocker } from "@foxglove/studio-base/hooks/useCalloutDismissalBlocker";
 import useElectronFilesToOpen from "@foxglove/studio-base/hooks/useElectronFilesToOpen";
 import useNativeAppMenuEvent from "@foxglove/studio-base/hooks/useNativeAppMenuEvent";
+import { useStateLocationSynchronization } from "@foxglove/studio-base/hooks/useStateLocationSynchronization";
 import welcomeLayout from "@foxglove/studio-base/layouts/welcomeLayout";
 import { PlayerPresence } from "@foxglove/studio-base/players/types";
+import { parseAppURLState } from "@foxglove/studio-base/util/appStateURL";
 
 const log = Log.getLogger(__filename);
 
@@ -243,6 +244,8 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
     }
   }, []);
 
+  useStateLocationSynchronization();
+
   useCalloutDismissalBlocker();
 
   useNativeAppMenuEvent(
@@ -350,51 +353,26 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
     }
 
     try {
-      const url = new URL(firstLink);
-      // only support the open command
-
-      // Test if the pathname matches //open or //open/
-      if (!/\/\/open\/?/.test(url.pathname)) {
+      const urlState = parseAppURLState(new URL(firstLink));
+      if (urlState instanceof Error) {
+        log.error(urlState);
         return;
       }
 
-      const type = url.searchParams.get("type");
-      if (type === "rosbag") {
-        const bagUrl = url.searchParams.get("url");
-        if (!bagUrl) {
-          log.warn(`Missing rosbag url param in ${url}`);
-          return;
-        }
-        selectSource(
-          "ros1-remote-bagfile",
-
-          { url: bagUrl },
-        );
-      } else if (type === "foxglove-data-platform") {
-        const start = url.searchParams.get("start") ?? "";
-        const end = url.searchParams.get("end") ?? "";
-        const seekTo = url.searchParams.get("seekTo") ?? undefined;
-        const deviceId = url.searchParams.get("deviceId");
-        if (!deviceId) {
-          log.warn(`Missing deviceId param in ${url}`);
-          return;
-        }
-        if (
-          !fromRFC3339String(start) ||
-          !fromRFC3339String(end) ||
-          (seekTo && !fromRFC3339String(seekTo))
-        ) {
-          log.warn(`Missing or invalid timestamp(s) in ${url}`);
-          return;
-        }
-        selectSource("foxglove-data-platform", { start, end, seekTo, deviceId });
-      } else {
-        log.warn(`Unknown deep link type ${url}`);
+      if (urlState.type === "rosbag") {
+        selectSource("ros1-remote-bagfile", urlState);
+      } else if (urlState.type === "foxglove-data-platform") {
+        selectSource("foxglove-data-platform", urlState.options);
+      } else if (urlState.type === "rosbridge") {
+        // ?
+      }
+      if (urlState.layoutId != undefined) {
+        setSelectedLayoutId(urlState.layoutId);
       }
     } catch (err) {
       log.error(err);
     }
-  }, [props.deepLinks, selectSource]);
+  }, [props.deepLinks, selectSource, setSelectedLayoutId]);
 
   const dropHandler = useCallback(
     ({ files }: { files: FileList }) => {

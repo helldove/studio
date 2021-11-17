@@ -69,6 +69,7 @@ function AppWrapper({ loadWelcomeLayout }: { loadWelcomeLayout: boolean }) {
       loadWelcomeLayout={loadWelcomeLayout}
       demoBagUrl={DEMO_BAG_URL}
       availableSources={dataSources}
+      deepLinks={[window.location.href]}
     />
   );
 }
