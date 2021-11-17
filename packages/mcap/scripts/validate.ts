@@ -6,9 +6,10 @@ import { program } from "commander";
 import fs from "fs";
 import { isEqual } from "lodash";
 import { performance } from "perf_hooks";
+import { parse as protoParse, Type as ReflectedType } from "protobufjs";
 import decompressLZ4 from "wasm-lz4";
 
-import { parse as parseMessageDefinition, RosMsgDefinition } from "@foxglove/rosmsg";
+import { parse as parseMessageDefinition } from "@foxglove/rosmsg";
 import { LazyMessageReader as ROS1LazyMessageReader } from "@foxglove/rosmsg-serialization";
 import { MessageReader as ROS2MessageReader } from "@foxglove/rosmsg2-serialization";
 
@@ -41,8 +42,8 @@ async function validate(
     number,
     {
       info: ChannelInfo;
-      messageDeserializer: ROS2MessageReader | ROS1LazyMessageReader;
-      parsedDefinitions: RosMsgDefinition[];
+      messageDeserializer: ROS2MessageReader | ROS1LazyMessageReader | ReflectedType;
+      //parsedDefinitions: RosMsgDefinition[];
     }
   >();
 
@@ -61,20 +62,23 @@ async function validate(
           }
           break;
         }
-        let parsedDefinitions;
         let messageDeserializer;
         if (record.encoding === "ros1") {
-          parsedDefinitions = parseMessageDefinition(record.schema);
+          const parsedDefinitions = parseMessageDefinition(record.schema);
           messageDeserializer = new ROS1LazyMessageReader(parsedDefinitions);
         } else if (record.encoding === "ros2") {
-          parsedDefinitions = parseMessageDefinition(record.schema, {
+          const parsedDefinitions = parseMessageDefinition(record.schema, {
             ros2: true,
           });
           messageDeserializer = new ROS2MessageReader(parsedDefinitions);
+        } else if (record.encoding === "protobuf") {
+          const MsgRoot = protoParse(record.schema);
+          const Deserializer = MsgRoot.root.lookupType(record.schemaName);
+          messageDeserializer = Deserializer;
         } else {
           throw new Error(`unsupported encoding ${record.encoding}`);
         }
-        channelInfoById.set(record.id, { info: record, messageDeserializer, parsedDefinitions });
+        channelInfoById.set(record.id, { info: record, messageDeserializer });
         break;
       }
 
@@ -97,6 +101,9 @@ async function validate(
             message = channelInfo.messageDeserializer
               .readMessage(new DataView(record.data))
               .toJSON();
+          } else if (channelInfo.messageDeserializer instanceof ReflectedType) {
+            const protoMsg = channelInfo.messageDeserializer.decode(new Uint8Array(record.data));
+            message = protoMsg.toJSON();
           } else {
             message = channelInfo.messageDeserializer.readMessage(new DataView(record.data));
           }
