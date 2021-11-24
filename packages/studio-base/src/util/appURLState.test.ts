@@ -90,7 +90,7 @@ describe("app state encoding", () => {
       { type: "ros1", url: "http://example.com:11311/test.bag" },
       { type: "ros2", url: "http://example.com:11311/test.bag" },
       { type: "ros1-remote-bagfile", url: "http://example.com/test.bag" },
-      { type: "rosbridge-websockete", url: "ws://foxglove.dev:9090/test.bag" },
+      { type: "rosbridge-websocket", url: "ws://foxglove.dev:9090/test.bag" },
     ];
     states.forEach((state) => {
       const url = "url" in state ? state.url : "";

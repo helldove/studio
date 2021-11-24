@@ -99,7 +99,7 @@ export type PlayerURLState =
   | { type: "foxglove-data-platform"; options: FoxgloveDataPlatformOptions }
   | { type: "ros1"; url: string }
   | { type: "ros2"; url: string }
-  | { type: "rosbridge-websockete"; url: string }
+  | { type: "rosbridge-websocket"; url: string }
   | { type: "ros1-remote-bagfile"; url: string };
 
 export type PlayerState = {

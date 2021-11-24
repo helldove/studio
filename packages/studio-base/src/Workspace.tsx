@@ -366,7 +366,7 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
         selectSource(urlState.type, urlState.options);
       } else if (
         urlState.type === "ros1-remote-bagfile" ||
-        urlState.type === "rosbridge-websockete"
+        urlState.type === "rosbridge-websocket"
       ) {
         selectSource(urlState.type, urlState);
       }

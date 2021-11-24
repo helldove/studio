@@ -35,7 +35,7 @@ export function encodeAppURLState(url: URL, urlState: AppURLState): URL {
   } else if (
     urlState.type === "ros1" ||
     urlState.type === "ros2" ||
-    urlState.type === "rosbridge-websockete"
+    urlState.type === "rosbridge-websocket"
   ) {
     url.searchParams.set("type", urlState.type);
     url.searchParams.set("url", urlState.url);
@@ -74,7 +74,7 @@ export function parseAppURLState(url: URL): AppURLState | Error | undefined {
   }
 
   const layoutId = url.searchParams.get("layoutId");
-  if (type === "ros1-remote-bagfile" || type === "rosbridge-websockete") {
+  if (type === "ros1-remote-bagfile" || type === "rosbridge-websocket") {
     const resourceUrl = url.searchParams.get("url");
     if (!resourceUrl) {
       return Error(`Missing resource url param in ${url}`);

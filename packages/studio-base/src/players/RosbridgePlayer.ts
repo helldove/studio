@@ -330,7 +330,7 @@ export default class RosbridgePlayer implements Player {
       playerId: this._id,
       problems: this._problems.problems(),
       urlState: {
-        type: "rosbridge-websockete",
+        type: "rosbridge-websocket",
         url: this._url,
       },
 
