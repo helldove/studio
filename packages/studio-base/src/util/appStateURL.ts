@@ -70,15 +70,15 @@ export function parseAppURLState(url: URL): AppURLState | Error {
 
   const type = url.searchParams.get("type");
   const layoutId = url.searchParams.get("layoutId");
-  if (type === "rosbag") {
-    const bagUrl = url.searchParams.get("url");
-    if (!bagUrl) {
-      return Error(`Missing rosbag url param in ${url}`);
+  if (type === "rosbag" || type === "rosbridge") {
+    const resourceUrl = url.searchParams.get("url");
+    if (!resourceUrl) {
+      return Error(`Missing resource url param in ${url}`);
     } else {
       return {
         layoutId: layoutId ? (layoutId as LayoutID) : undefined,
-        type: "rosbag",
-        url: bagUrl,
+        type,
+        url: resourceUrl,
       };
     }
   } else if (type === "foxglove-data-platform") {
