@@ -34,9 +34,9 @@ import DropOverlay from "@foxglove/studio-base/components/DropOverlay";
 import ExtensionsSidebar from "@foxglove/studio-base/components/ExtensionsSidebar";
 import GlobalVariablesTable from "@foxglove/studio-base/components/GlobalVariablesTable";
 import variablesHelpContent from "@foxglove/studio-base/components/GlobalVariablesTable/index.help.md";
- import HelpSidebar from "@foxglove/studio-base/components/HelpSidebar";
+import HelpSidebar from "@foxglove/studio-base/components/HelpSidebar";
 import LayoutBrowser from "@foxglove/studio-base/components/LayoutBrowser";
- import {
+import {
   MessagePipelineContext,
   useMessagePipeline,
 } from "@foxglove/studio-base/components/MessagePipeline";
@@ -227,7 +227,6 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
     if (href === "#help:message-path-syntax") {
       event.preventDefault();
       setSelectedSidebarItem("help");
-      // TODO: useHelpTitle(), useHelpContent()
     }
   }, []);
 

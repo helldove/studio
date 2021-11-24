@@ -71,8 +71,8 @@ export default function HelpSidebar({
   const [isHomeView, setIsHomeView] = useState(
     isHomeViewForTests == undefined ? true : isHomeViewForTests,
   );
-  const [helpTitle, setHelpTitle] = useState(""); // TODO: Move 1 level higher: useHelpTitle()
-  const [helpContent, setHelpContent] = useState(""); // TODO: Move 1 level higher: useHelpContent()
+  const [helpTitle, setHelpTitle] = useState("");
+  const [helpContent, setHelpContent] = useState("");
   const { panelDocToDisplay: panelType, setPanelDocToDisplay } = useSelectedPanels();
 
   const panelCatalog = usePanelCatalog();
