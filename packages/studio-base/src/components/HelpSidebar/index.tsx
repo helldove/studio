@@ -120,6 +120,8 @@ export default function HelpSidebar({
                 style={{ marginRight: "5px" }}
                 onClick={() => {
                   setIsHomeView(true);
+                  setHelpTitle("");
+                  setHelpContent("");
                   setPanelDocToDisplay("");
                 }}
               >

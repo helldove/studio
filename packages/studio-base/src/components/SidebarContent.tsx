@@ -3,8 +3,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import { Stack, Text, useTheme, mergeStyleSets } from "@fluentui/react";
-import ChevronDownIcon from "@mdi/svg/svg/chevron-down.svg";
-import ChevronUpIcon from "@mdi/svg/svg/chevron-up.svg";
+import HelpCircleOutlineIcon from "@mdi/svg/svg/help-circle-outline.svg";
+import HelpCircleIcon from "@mdi/svg/svg/help-circle.svg";
 import { useState, useMemo } from "react";
 
 import Icon from "@foxglove/studio-base/components/Icon";
@@ -36,7 +36,7 @@ export function SidebarContent({
 
   const trailingItemsWithHelp = useMemo(() => {
     if (helpContent != undefined) {
-      const IconComponent = showHelp ? ChevronUpIcon : ChevronDownIcon;
+      const IconComponent = showHelp ? HelpCircleIcon : HelpCircleOutlineIcon;
       const tooltipText = showHelp ? "Hide help" : "Show help";
       return [
         ...(trailingItems ?? []),

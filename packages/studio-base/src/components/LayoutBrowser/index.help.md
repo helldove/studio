@@ -1,3 +1,1 @@
-Arrange Studio panels into custom workspaces, called layouts, to assist with your unique visualization and debugging workflows.
-
-[Learn more](https://foxglove.dev/docs/app-concepts/layouts).
+Arrange Foxglove Studio panels into custom workspaces, called [layouts](https://foxglove.dev/docs/app-concepts/layouts), for your unique visualization and debugging workflows.
