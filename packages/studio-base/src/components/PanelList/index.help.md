@@ -1,5 +1,3 @@
-# Panels
-
 Panels are modular visualization interfaces that can be configured and arranged into Studio layouts.
 
 ## Shortcuts
