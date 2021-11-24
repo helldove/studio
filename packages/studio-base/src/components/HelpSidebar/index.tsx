@@ -13,10 +13,11 @@ import MesssagePathSyntaxHelp from "@foxglove/studio-base/components/MessagePath
 import { SidebarContent } from "@foxglove/studio-base/components/SidebarContent";
 import TextContent from "@foxglove/studio-base/components/TextContent";
 import { useSelectedPanels } from "@foxglove/studio-base/context/CurrentLayoutContext";
+import { useHelpInfo, HelpInfo } from "@foxglove/studio-base/context/HelpInfoContext";
 import { PanelInfo, usePanelCatalog } from "@foxglove/studio-base/context/PanelCatalogContext";
 import isDesktopApp from "@foxglove/studio-base/util/isDesktopApp";
 
-const appLinks = [
+const appLinks: HelpInfo[] = [
   { title: "Message path syntax", content: MesssagePathSyntaxHelp },
   { title: "Keyboard shortcuts", content: KeyboardShortcutHelp },
 ];
@@ -71,8 +72,8 @@ export default function HelpSidebar({
   const [isHomeView, setIsHomeView] = useState(
     isHomeViewForTests == undefined ? true : isHomeViewForTests,
   );
-  const [helpInfo, setHelpInfo] = useState({ title: "", content: "" });
   const { panelDocToDisplay: panelType, setPanelDocToDisplay } = useSelectedPanels();
+  const { helpInfo, setHelpInfo } = useHelpInfo();
 
   const panelCatalog = usePanelCatalog();
   const panelInfo = useMemo(
