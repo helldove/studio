@@ -17,24 +17,24 @@ import { PanelInfo, usePanelCatalog } from "@foxglove/studio-base/context/PanelC
 import isDesktopApp from "@foxglove/studio-base/util/isDesktopApp";
 
 const appLinks = [
-  { text: "Message path syntax", content: MesssagePathSyntaxHelp },
-  { text: "Keyboard shortcuts", content: KeyboardShortcutHelp },
+  { title: "Message path syntax", content: MesssagePathSyntaxHelp },
+  { title: "Keyboard shortcuts", content: KeyboardShortcutHelp },
 ];
 
 const resourceLinks = [
-  ...(isDesktopApp() ? [] : [{ text: "Desktop app", url: "https://foxglove.dev/download" }]),
-  { text: "Read docs", url: "https://foxglove.dev/docs" },
-  { text: "Join our community", url: "https://foxglove.dev/community" },
+  ...(isDesktopApp() ? [] : [{ title: "Desktop app", url: "https://foxglove.dev/download" }]),
+  { title: "Read docs", url: "https://foxglove.dev/docs" },
+  { title: "Join our community", url: "https://foxglove.dev/community" },
 ];
 
 const productLinks = [
-  { text: "Foxglove Studio", url: "https://foxglove.dev/studio" },
-  { text: "Foxglove Data Platform", url: "https://foxglove.dev/data-platform" },
+  { title: "Foxglove Studio", url: "https://foxglove.dev/studio" },
+  { title: "Foxglove Data Platform", url: "https://foxglove.dev/data-platform" },
 ];
 
 const legalLinks = [
-  { text: "License", url: "https://foxglove.dev/legal/studio-license" },
-  { text: "Privacy", url: "https://foxglove.dev/legal/privacy" },
+  { title: "License", url: "https://foxglove.dev/legal/studio-license" },
+  { title: "Privacy", url: "https://foxglove.dev/legal/privacy" },
 ];
 
 const useComponentStyles = (theme: ITheme) =>
@@ -71,8 +71,7 @@ export default function HelpSidebar({
   const [isHomeView, setIsHomeView] = useState(
     isHomeViewForTests == undefined ? true : isHomeViewForTests,
   );
-  const [helpTitle, setHelpTitle] = useState("");
-  const [helpContent, setHelpContent] = useState("");
+  const [helpInfo, setHelpInfo] = useState({ title: "", content: "" });
   const { panelDocToDisplay: panelType, setPanelDocToDisplay } = useSelectedPanels();
 
   const panelCatalog = usePanelCatalog();
@@ -96,8 +95,8 @@ export default function HelpSidebar({
       return panelInfo.title;
     }
 
-    return helpTitle || "";
-  }, [isHomeView, helpTitle, panelInfo?.title]);
+    return helpInfo.title;
+  }, [isHomeView, helpInfo.title, panelInfo?.title]);
 
   useEffect(() => setIsHomeView(!panelInfo), [setIsHomeView, panelInfo]);
 
@@ -120,8 +119,7 @@ export default function HelpSidebar({
                 style={{ marginRight: "5px" }}
                 onClick={() => {
                   setIsHomeView(true);
-                  setHelpTitle("");
-                  setHelpContent("");
+                  setHelpInfo({ title: "", content: "" });
                   setPanelDocToDisplay("");
                 }}
               >
@@ -137,18 +135,17 @@ export default function HelpSidebar({
             <Stack.Item>
               <Text styles={styles.subheader}>App</Text>
               <Stack tokens={{ padding: `${theme.spacing.m} 0`, childrenGap: theme.spacing.s1 }}>
-                {appLinks.map(({ text, content }) => (
+                {appLinks.map(({ title, content }) => (
                   <Link
-                    key={text}
+                    key={title}
                     style={{ color: theme.semanticColors.bodyText }}
                     onClick={() => {
                       setIsHomeView(false);
-                      setHelpTitle(text);
-                      setHelpContent(content);
+                      setHelpInfo({ title, content });
                     }}
                     styles={styles.link}
                   >
-                    {text}
+                    {title}
                   </Link>
                 ))}
               </Stack>
@@ -172,14 +169,14 @@ export default function HelpSidebar({
             <Stack.Item>
               <Text styles={styles.subheader}>External Resources</Text>
               <Stack tokens={{ padding: `${theme.spacing.m} 0`, childrenGap: theme.spacing.s1 }}>
-                {resourceLinks.map((link) => (
+                {resourceLinks.map(({ title, url }) => (
                   <Link
-                    key={link.text}
+                    key={title}
                     style={{ color: theme.semanticColors.bodyText }}
-                    href={link.url}
+                    href={url}
                     styles={styles.link}
                   >
-                    {link.text}
+                    {title}
                   </Link>
                 ))}
               </Stack>
@@ -188,14 +185,14 @@ export default function HelpSidebar({
             <Stack.Item>
               <Text styles={styles.subheader}>Products</Text>
               <Stack tokens={{ padding: `${theme.spacing.m} 0`, childrenGap: theme.spacing.s1 }}>
-                {productLinks.map((link) => (
+                {productLinks.map(({ title, url }) => (
                   <Link
-                    key={link.text}
+                    key={title}
                     style={{ color: theme.semanticColors.bodyText }}
-                    href={link.url}
+                    href={url}
                     styles={styles.link}
                   >
-                    {link.text}
+                    {title}
                   </Link>
                 ))}
               </Stack>
@@ -204,14 +201,14 @@ export default function HelpSidebar({
             <Stack.Item>
               <Text styles={styles.subheader}>Legal</Text>
               <Stack tokens={{ padding: `${theme.spacing.m} 0`, childrenGap: theme.spacing.s1 }}>
-                {legalLinks.map((link) => (
+                {legalLinks.map(({ title, url }) => (
                   <Link
-                    key={link.text}
+                    key={title}
                     style={{ color: theme.semanticColors.bodyText }}
-                    href={link.url}
+                    href={url}
                     styles={styles.link}
                   >
-                    {link.text}
+                    {title}
                   </Link>
                 ))}
               </Stack>
@@ -219,8 +216,8 @@ export default function HelpSidebar({
           </Stack>
         ) : (
           <Stack tokens={{ childrenGap: theme.spacing.s2 }}>
-            {helpContent ? (
-              <TextContent allowMarkdownHtml={true}>{helpContent}</TextContent>
+            {helpInfo.content ? (
+              <TextContent allowMarkdownHtml={true}>{helpInfo.content}</TextContent>
             ) : panelInfo?.help != undefined ? (
               <TextContent allowMarkdownHtml={true}>{panelInfo?.help}</TextContent>
             ) : (
