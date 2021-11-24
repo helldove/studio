@@ -34,11 +34,9 @@ import DropOverlay from "@foxglove/studio-base/components/DropOverlay";
 import ExtensionsSidebar from "@foxglove/studio-base/components/ExtensionsSidebar";
 import GlobalVariablesTable from "@foxglove/studio-base/components/GlobalVariablesTable";
 import variablesHelpContent from "@foxglove/studio-base/components/GlobalVariablesTable/index.help.md";
-import HelpModal from "@foxglove/studio-base/components/HelpModal";
-import HelpSidebar from "@foxglove/studio-base/components/HelpSidebar";
+ import HelpSidebar from "@foxglove/studio-base/components/HelpSidebar";
 import LayoutBrowser from "@foxglove/studio-base/components/LayoutBrowser";
-import messagePathHelp from "@foxglove/studio-base/components/MessagePathSyntax/index.help.md";
-import {
+ import {
   MessagePipelineContext,
   useMessagePipeline,
 } from "@foxglove/studio-base/components/MessagePipeline";
@@ -50,7 +48,6 @@ import PanelSettings from "@foxglove/studio-base/components/PanelSettings";
 import PlaybackControls from "@foxglove/studio-base/components/PlaybackControls";
 import Preferences from "@foxglove/studio-base/components/Preferences";
 import RemountOnValueChange from "@foxglove/studio-base/components/RemountOnValueChange";
-import ShortcutsModal from "@foxglove/studio-base/components/ShortcutsModal";
 import Sidebar, { SidebarItem } from "@foxglove/studio-base/components/Sidebar";
 import { SidebarContent } from "@foxglove/studio-base/components/SidebarContent";
 import { useAppConfiguration } from "@foxglove/studio-base/context/AppConfigurationContext";
@@ -205,9 +202,6 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
     }
   }, [selectedSidebarItem, playerPresence]);
 
-  const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
-  const [messagePathSyntaxModalOpen, setMessagePathSyntaxModalOpen] = useState(false);
-
   const isMounted = useMountedState();
 
   const layoutStorage = useLayoutManager();
@@ -232,7 +226,8 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
   const handleInternalLink = useCallback((event: React.MouseEvent, href: string) => {
     if (href === "#help:message-path-syntax") {
       event.preventDefault();
-      setMessagePathSyntaxModalOpen(true);
+      setSelectedSidebarItem("help");
+      // TODO: useHelpTitle(), useHelpContent()
     }
   }, []);
 
@@ -253,13 +248,10 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
   );
 
   useNativeAppMenuEvent(
-    "open-message-path-syntax-help",
-    useCallback(() => setMessagePathSyntaxModalOpen(true), []),
-  );
-
-  useNativeAppMenuEvent(
-    "open-keyboard-shortcuts",
-    useCallback(() => setShortcutsModalOpen(true), []),
+    "open-help",
+    useCallback(() => {
+      setSelectedSidebarItem((item) => (item === "help" ? undefined : "help"));
+    }, []),
   );
 
   useNativeAppMenuEvent("open-welcome-layout", openWelcomeLayout);
@@ -480,14 +472,6 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
         </DropOverlay>
       </DocumentDropListener>
       <div className={classes.container} ref={containerRef} tabIndex={0}>
-        {shortcutsModalOpen && (
-          <ShortcutsModal onRequestClose={() => setShortcutsModalOpen(false)} />
-        )}
-        {messagePathSyntaxModalOpen && (
-          <HelpModal onRequestClose={() => setMessagePathSyntaxModalOpen(false)}>
-            {messagePathHelp}
-          </HelpModal>
-        )}
         <Sidebar
           items={sidebarItems}
           bottomItems={sidebarBottomItems}

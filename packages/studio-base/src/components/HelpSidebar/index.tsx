@@ -8,6 +8,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useUnmount } from "react-use";
 
 import Icon from "@foxglove/studio-base/components/Icon";
+import KeyboardShortcutHelp from "@foxglove/studio-base/components/KeyboardShortcut.help.md";
 import MesssagePathSyntaxHelp from "@foxglove/studio-base/components/MessagePathSyntax/index.help.md";
 import { SidebarContent } from "@foxglove/studio-base/components/SidebarContent";
 import TextContent from "@foxglove/studio-base/components/TextContent";
@@ -15,7 +16,10 @@ import { useSelectedPanels } from "@foxglove/studio-base/context/CurrentLayoutCo
 import { PanelInfo, usePanelCatalog } from "@foxglove/studio-base/context/PanelCatalogContext";
 import isDesktopApp from "@foxglove/studio-base/util/isDesktopApp";
 
-const appLinks = [{ text: "Message path syntax", content: MesssagePathSyntaxHelp }];
+const appLinks = [
+  { text: "Message path syntax", content: MesssagePathSyntaxHelp },
+  { text: "Keyboard shortcuts", content: KeyboardShortcutHelp },
+];
 
 const resourceLinks = [
   ...(isDesktopApp() ? [] : [{ text: "Desktop app", url: "https://foxglove.dev/download" }]),
@@ -67,8 +71,8 @@ export default function HelpSidebar({
   const [isHomeView, setIsHomeView] = useState(
     isHomeViewForTests == undefined ? true : isHomeViewForTests,
   );
-  const [helpTitle, setHelpTitle] = useState("");
-  const [helpContent, setHelpContent] = useState("");
+  const [helpTitle, setHelpTitle] = useState(""); // TODO: Move 1 level higher: useHelpTitle()
+  const [helpContent, setHelpContent] = useState(""); // TODO: Move 1 level higher: useHelpContent()
   const { panelDocToDisplay: panelType, setPanelDocToDisplay } = useSelectedPanels();
 
   const panelCatalog = usePanelCatalog();
@@ -213,7 +217,9 @@ export default function HelpSidebar({
           </Stack>
         ) : (
           <Stack tokens={{ childrenGap: theme.spacing.s2 }}>
-            {panelInfo?.help != undefined ? (
+            {helpContent ? (
+              <TextContent allowMarkdownHtml={true}>{helpContent}</TextContent>
+            ) : panelInfo?.help != undefined ? (
               <TextContent allowMarkdownHtml={true}>{panelInfo?.help}</TextContent>
             ) : (
               "Panel does not have any documentation details."
