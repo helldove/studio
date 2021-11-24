@@ -72,7 +72,7 @@ import useNativeAppMenuEvent from "@foxglove/studio-base/hooks/useNativeAppMenuE
 import { useStateLocationSynchronization } from "@foxglove/studio-base/hooks/useStateLocationSynchronization";
 import welcomeLayout from "@foxglove/studio-base/layouts/welcomeLayout";
 import { PlayerPresence } from "@foxglove/studio-base/players/types";
-import { parseAppURLState } from "@foxglove/studio-base/util/appStateURL";
+import { parseAppURLState } from "@foxglove/studio-base/util/appURLState";
 
 const log = Log.getLogger(__filename);
 
@@ -354,18 +354,23 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
 
     try {
       const urlState = parseAppURLState(new URL(firstLink));
+      if (urlState == undefined) {
+        return;
+      }
       if (urlState instanceof Error) {
         log.error(urlState);
         return;
       }
 
-      if (urlState.type === "rosbag") {
-        selectSource("ros1-remote-bagfile", urlState);
-      } else if (urlState.type === "foxglove-data-platform") {
-        selectSource("foxglove-data-platform", urlState.options);
-      } else if (urlState.type === "rosbridge") {
-        // ?
+      if (urlState.type === "foxglove-data-platform") {
+        selectSource(urlState.type, urlState.options);
+      } else if (
+        urlState.type === "ros1-remote-bagfile" ||
+        urlState.type === "rosbridge-websockete"
+      ) {
+        selectSource(urlState.type, urlState);
       }
+
       if (urlState.layoutId != undefined) {
         setSelectedLayoutId(urlState.layoutId);
       }

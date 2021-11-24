@@ -5,7 +5,7 @@
 import { toRFC3339String } from "@foxglove/rostime";
 import { LayoutID } from "@foxglove/studio-base/index";
 import { PlayerURLState } from "@foxglove/studio-base/players/types";
-import { encodeAppURLState, parseAppURLState } from "@foxglove/studio-base/util/appStateURL";
+import { encodeAppURLState, parseAppURLState } from "@foxglove/studio-base/util/appURLState";
 import isDesktopApp from "@foxglove/studio-base/util/isDesktopApp";
 
 jest.mock("@foxglove/studio-base/util/isDesktopApp", () => ({
@@ -17,16 +17,16 @@ const mockIsDesktop = isDesktopApp as jest.MockedFunction<typeof isDesktopApp>;
 
 function runCommonTests(urlBuilder: () => URL) {
   it("rejects non data state urls", () => {
-    expect(parseAppURLState(urlBuilder())).toBeInstanceOf(Error);
+    expect(parseAppURLState(urlBuilder())).toBeUndefined();
   });
 
   it("parses rosbag data state urls", () => {
     const url = urlBuilder();
-    url.searchParams.append("type", "rosbag");
+    url.searchParams.append("type", "ros1-remote-bagfile");
     url.searchParams.append("url", "http://example.com");
 
     expect(parseAppURLState(url)).toMatchObject({
-      type: "rosbag",
+      type: "ros1-remote-bagfile",
       url: "http://example.com",
     });
   });
@@ -77,11 +77,11 @@ describe("app state encoding", () => {
     expect(
       encodeAppURLState(baseURL(), {
         layoutId: "123" as LayoutID,
-        type: "rosbag",
+        type: "ros1-remote-bagfile",
         url: "http://foxglove.dev/test.bag",
       }).href,
     ).toEqual(
-      "http://example.com/?layoutId=123&type=rosbag&url=http%3A%2F%2Ffoxglove.dev%2Ftest.bag",
+      "http://example.com/?layoutId=123&type=ros1-remote-bagfile&url=http%3A%2F%2Ffoxglove.dev%2Ftest.bag",
     );
   });
 
@@ -89,8 +89,8 @@ describe("app state encoding", () => {
     const states: PlayerURLState[] = [
       { type: "ros1", url: "http://example.com:11311/test.bag" },
       { type: "ros2", url: "http://example.com:11311/test.bag" },
-      { type: "rosbag", url: "http://example.com/test.bag" },
-      { type: "rosbridge", url: "ws://foxglove.dev:9090/test.bag" },
+      { type: "ros1-remote-bagfile", url: "http://example.com/test.bag" },
+      { type: "rosbridge-websockete", url: "ws://foxglove.dev:9090/test.bag" },
     ];
     states.forEach((state) => {
       const url = "url" in state ? state.url : "";

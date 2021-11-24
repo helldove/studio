@@ -361,7 +361,7 @@ export default class RandomAccessPlayer implements Player {
           },
       urlState: this._label
         ? {
-            type: "rosbag",
+            type: "ros1-remote-bagfile",
             url: this._label,
           }
         : undefined,

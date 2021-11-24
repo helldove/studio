@@ -10,7 +10,7 @@ import {
 } from "@foxglove/studio-base/components/MessagePipeline";
 import { useCurrentLayoutSelector } from "@foxglove/studio-base/context/CurrentLayoutContext";
 import useDeepMemo from "@foxglove/studio-base/hooks/useDeepMemo";
-import { encodeAppURLState } from "@foxglove/studio-base/util/appStateURL";
+import { encodeAppURLState } from "@foxglove/studio-base/util/appURLState";
 import isDesktopApp from "@foxglove/studio-base/util/isDesktopApp";
 
 const selectUrlState = (ctx: MessagePipelineContext) => ctx.playerState.urlState;
@@ -24,7 +24,15 @@ export function useStateLocationSynchronization(): void {
   const stableUrlState = useDeepMemo(urlState);
 
   useEffect(() => {
-    if (isDesktopApp() || !stableUrlState) {
+    if (isDesktopApp()) {
+      return;
+    }
+
+    // Clear query params if we don't have a valid state.
+    if (!stableUrlState) {
+      const url = new URL(window.location.href);
+      url.searchParams.forEach((_v, k) => url.searchParams.delete(k));
+      window.history.replaceState(undefined, "", url.href);
       return;
     }
 

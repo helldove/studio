@@ -99,8 +99,8 @@ export type PlayerURLState =
   | { type: "foxglove-data-platform"; options: FoxgloveDataPlatformOptions }
   | { type: "ros1"; url: string }
   | { type: "ros2"; url: string }
-  | { type: "rosbridge"; url: string }
-  | { type: "rosbag"; url: string };
+  | { type: "rosbridge-websockete"; url: string }
+  | { type: "ros1-remote-bagfile"; url: string };
 
 export type PlayerState = {
   // Information about the player's presence or connection status, for the UI to show a loading indicator.

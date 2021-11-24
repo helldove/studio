@@ -26,7 +26,7 @@ export function encodeAppURLState(url: URL, urlState: AppURLState): URL {
     url.searchParams.set("layoutId", urlState.layoutId);
   }
 
-  if (urlState.type === "rosbag") {
+  if (urlState.type === "ros1-remote-bagfile") {
     // We can't get full paths to local files so only set this for remote files.
     if (urlState.url.startsWith("http")) {
       url.searchParams.set("type", urlState.type);
@@ -35,7 +35,7 @@ export function encodeAppURLState(url: URL, urlState: AppURLState): URL {
   } else if (
     urlState.type === "ros1" ||
     urlState.type === "ros2" ||
-    urlState.type === "rosbridge"
+    urlState.type === "rosbridge-websockete"
   ) {
     url.searchParams.set("type", urlState.type);
     url.searchParams.set("url", urlState.url);
@@ -59,7 +59,7 @@ export function encodeAppURLState(url: URL, urlState: AppURLState): URL {
  * @param url URL to try to parse.
  * @returns Parsed URL type or undefined if the url is not a foxglove URL.
  */
-export function parseAppURLState(url: URL): AppURLState | Error {
+export function parseAppURLState(url: URL): AppURLState | Error | undefined {
   if (isDesktopApp() && url.protocol !== "foxglove:") {
     return Error("Unknown protocol.");
   }
@@ -69,8 +69,12 @@ export function parseAppURLState(url: URL): AppURLState | Error {
   }
 
   const type = url.searchParams.get("type");
+  if (!type) {
+    return undefined;
+  }
+
   const layoutId = url.searchParams.get("layoutId");
-  if (type === "rosbag" || type === "rosbridge") {
+  if (type === "ros1-remote-bagfile" || type === "rosbridge-websockete") {
     const resourceUrl = url.searchParams.get("url");
     if (!resourceUrl) {
       return Error(`Missing resource url param in ${url}`);
@@ -110,4 +114,25 @@ export function parseAppURLState(url: URL): AppURLState | Error {
   } else {
     return Error(`Unknown deep link type ${url}`);
   }
+}
+
+/**
+ * Tries to parse app url state from the window's current location.
+ */
+export function windowAppURLState(): AppURLState | Error | undefined {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  return parseAppURLState(new URL(window.location.href));
+}
+
+/**
+ * Checks to see if we have a valid state encoded in the url.
+ *
+ * @returns True if the window has a valid encoded url state.
+ */
+export function windowHasValidURLState(): boolean {
+  const urlState = windowAppURLState();
+  return urlState != undefined && !(urlState instanceof Error);
 }
