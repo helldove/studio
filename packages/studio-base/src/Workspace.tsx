@@ -24,7 +24,6 @@ import {
 import { useToasts } from "react-toast-notifications";
 import { useMount, useMountedState } from "react-use";
 
-import Log from "@foxglove/log";
 import AccountSettings from "@foxglove/studio-base/components/AccountSettingsSidebar/AccountSettings";
 import ConnectionList from "@foxglove/studio-base/components/ConnectionList";
 import connectionHelpContent from "@foxglove/studio-base/components/ConnectionList/index.help.md";
@@ -72,9 +71,6 @@ import useNativeAppMenuEvent from "@foxglove/studio-base/hooks/useNativeAppMenuE
 import { useStateLocationSynchronization } from "@foxglove/studio-base/hooks/useStateLocationSynchronization";
 import welcomeLayout from "@foxglove/studio-base/layouts/welcomeLayout";
 import { PlayerPresence } from "@foxglove/studio-base/players/types";
-import { parseAppURLState } from "@foxglove/studio-base/util/appURLState";
-
-const log = Log.getLogger(__filename);
 
 const useStyles = makeStyles({
   container: {
@@ -244,7 +240,7 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
     }
   }, []);
 
-  useStateLocationSynchronization();
+  useStateLocationSynchronization(props.deepLinks ?? []);
 
   useCalloutDismissalBlocker();
 
@@ -345,39 +341,6 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
       void openFiles(filesToOpen);
     }
   }, [filesToOpen, openFiles]);
-
-  useEffect(() => {
-    const firstLink = props.deepLinks?.[0];
-    if (firstLink == undefined) {
-      return;
-    }
-
-    try {
-      const urlState = parseAppURLState(new URL(firstLink));
-      if (urlState == undefined) {
-        return;
-      }
-      if (urlState instanceof Error) {
-        log.error(urlState);
-        return;
-      }
-
-      if (urlState.type === "foxglove-data-platform") {
-        selectSource(urlState.type, urlState.options);
-      } else if (
-        urlState.type === "ros1-remote-bagfile" ||
-        urlState.type === "rosbridge-websocket"
-      ) {
-        selectSource(urlState.type, urlState);
-      }
-
-      if (urlState.layoutId != undefined) {
-        setSelectedLayoutId(urlState.layoutId);
-      }
-    } catch (err) {
-      log.error(err);
-    }
-  }, [props.deepLinks, selectSource, setSelectedLayoutId]);
 
   const dropHandler = useCallback(
     ({ files }: { files: FileList }) => {

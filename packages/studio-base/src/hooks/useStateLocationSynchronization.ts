@@ -4,25 +4,35 @@
 
 import { useEffect } from "react";
 
+import Log from "@foxglove/log";
 import {
   MessagePipelineContext,
   useMessagePipeline,
 } from "@foxglove/studio-base/components/MessagePipeline";
-import { useCurrentLayoutSelector } from "@foxglove/studio-base/context/CurrentLayoutContext";
+import {
+  useCurrentLayoutActions,
+  useCurrentLayoutSelector,
+} from "@foxglove/studio-base/context/CurrentLayoutContext";
+import { usePlayerSelection } from "@foxglove/studio-base/context/PlayerSelectionContext";
 import useDeepMemo from "@foxglove/studio-base/hooks/useDeepMemo";
-import { encodeAppURLState } from "@foxglove/studio-base/util/appURLState";
+import { encodeAppURLState, parseAppURLState } from "@foxglove/studio-base/util/appURLState";
 import isDesktopApp from "@foxglove/studio-base/util/isDesktopApp";
 
 const selectUrlState = (ctx: MessagePipelineContext) => ctx.playerState.urlState;
 
+const log = Log.getLogger(__filename);
+
 /**
  * Syncs our current player, layout and other state with the address bar.
  */
-export function useStateLocationSynchronization(): void {
+export function useStateLocationSynchronization(deepLinks: string[]): void {
   const urlState = useMessagePipeline(selectUrlState);
   const layoutId = useCurrentLayoutSelector((layout) => layout.selectedLayout?.id);
   const stableUrlState = useDeepMemo(urlState);
+  const { selectSource } = usePlayerSelection();
+  const { setSelectedLayoutId } = useCurrentLayoutActions();
 
+  // Serialize changes of current app state into address bar.
   useEffect(() => {
     if (isDesktopApp()) {
       return;
@@ -43,4 +53,38 @@ export function useStateLocationSynchronization(): void {
 
     window.history.replaceState(undefined, "", url.href);
   }, [layoutId, stableUrlState]);
+
+  // Load app state from deeplink url if present.
+  useEffect(() => {
+    const firstLink = deepLinks[0];
+    if (firstLink == undefined) {
+      return;
+    }
+
+    try {
+      const appUrlState = parseAppURLState(new URL(firstLink));
+      if (appUrlState == undefined) {
+        return;
+      }
+      if (appUrlState instanceof Error) {
+        log.error(appUrlState);
+        return;
+      }
+
+      if (appUrlState.type === "foxglove-data-platform") {
+        selectSource(appUrlState.type, appUrlState.options);
+      } else if (
+        appUrlState.type === "ros1-remote-bagfile" ||
+        appUrlState.type === "rosbridge-websocket"
+      ) {
+        selectSource(appUrlState.type, appUrlState);
+      }
+
+      if (appUrlState.layoutId != undefined) {
+        setSelectedLayoutId(appUrlState.layoutId);
+      }
+    } catch (err) {
+      log.error(err);
+    }
+  }, [deepLinks, selectSource, setSelectedLayoutId]);
 }
