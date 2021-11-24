@@ -242,14 +242,14 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
   useNativeAppMenuEvent(
     "open-preferences",
     useCallback(() => {
-      setSelectedSidebarItem((item) => (item === "preferences" ? undefined : "preferences"));
+      setSelectedSidebarItem("preferences");
     }, []),
   );
 
   useNativeAppMenuEvent(
     "open-help",
     useCallback(() => {
-      setSelectedSidebarItem((item) => (item === "help" ? undefined : "help"));
+      setSelectedSidebarItem("help");
     }, []),
   );
 
