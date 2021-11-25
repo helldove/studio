@@ -10,4 +10,4 @@ Plot arbitrary values from topic paths, specified using [message path syntax](#h
 
 <kbd>Double-click</kbd> – Reset view
 
-[Learn more](https://foxglove.dev/docs/panels/plot).
+[Jump to docs](https://foxglove.dev/docs/panels/plot).

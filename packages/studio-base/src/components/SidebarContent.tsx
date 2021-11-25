@@ -91,14 +91,7 @@ export function SidebarContent({
         ) : undefined}
       </Stack>
       {showHelp ? (
-        <Stack
-          style={{
-            fontStyle: "italic",
-            margin: "0px",
-            padding: theme.spacing.m,
-            paddingTop: "0px",
-          }}
-        >
+        <Stack style={{ margin: "0px", padding: theme.spacing.m, paddingTop: "0px" }}>
           <TextContent allowMarkdownHtml={true}>{helpContent}</TextContent>
         </Stack>
       ) : undefined}

@@ -2,4 +2,4 @@ Display log messages from topics with a `rosgraph_msgs/Log` or `rcl_interfaces/m
 
 Filter incoming messages by severity level, node names, or message text.
 
-[Learn more](https://foxglove.dev/docs/panels/log).
+[Jump to docs](https://foxglove.dev/docs/panels/log).
