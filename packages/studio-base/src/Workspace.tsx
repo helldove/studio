@@ -34,7 +34,9 @@ import DropOverlay from "@foxglove/studio-base/components/DropOverlay";
 import ExtensionsSidebar from "@foxglove/studio-base/components/ExtensionsSidebar";
 import GlobalVariablesTable from "@foxglove/studio-base/components/GlobalVariablesTable";
 import variablesHelpContent from "@foxglove/studio-base/components/GlobalVariablesTable/index.help.md";
-import HelpSidebar from "@foxglove/studio-base/components/HelpSidebar";
+import HelpSidebar, {
+  MESSAGE_PATH_SYNTAX_HELP_INFO,
+} from "@foxglove/studio-base/components/HelpSidebar";
 import LayoutBrowser from "@foxglove/studio-base/components/LayoutBrowser";
 import {
   MessagePipelineContext,
@@ -59,6 +61,7 @@ import {
 } from "@foxglove/studio-base/context/CurrentLayoutContext";
 import { useCurrentUser } from "@foxglove/studio-base/context/CurrentUserContext";
 import { useExtensionLoader } from "@foxglove/studio-base/context/ExtensionLoaderContext";
+import { useHelpInfo } from "@foxglove/studio-base/context/HelpInfoContext";
 import { useLayoutManager } from "@foxglove/studio-base/context/LayoutManagerContext";
 import LinkHandlerContext from "@foxglove/studio-base/context/LinkHandlerContext";
 import { usePlayerSelection } from "@foxglove/studio-base/context/PlayerSelectionContext";
@@ -223,12 +226,18 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
     }
   }, [layoutStorage, isMounted, setSelectedLayoutId, props.demoBagUrl, selectSource]);
 
-  const handleInternalLink = useCallback((event: React.MouseEvent, href: string) => {
-    if (href === "#help:message-path-syntax") {
-      event.preventDefault();
-      setSelectedSidebarItem("help");
-    }
-  }, []);
+  const { setHelpInfo } = useHelpInfo();
+
+  const handleInternalLink = useCallback(
+    (event: React.MouseEvent, href: string) => {
+      if (href === "#help:message-path-syntax") {
+        event.preventDefault();
+        setSelectedSidebarItem("help");
+        setHelpInfo(MESSAGE_PATH_SYNTAX_HELP_INFO);
+      }
+    },
+    [setHelpInfo],
+  );
 
   useEffect(() => {
     // Focus on page load to enable keyboard interaction.

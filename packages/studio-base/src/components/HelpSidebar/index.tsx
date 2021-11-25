@@ -4,7 +4,7 @@
 
 import { Stack, useTheme, Text, Link, ITheme, ITextStyles, ILinkStyles } from "@fluentui/react";
 import ChevronLeftIcon from "@mdi/svg/svg/chevron-left.svg";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 import { useUnmount } from "react-use";
 
 import Icon from "@foxglove/studio-base/components/Icon";
@@ -12,13 +12,17 @@ import KeyboardShortcutHelp from "@foxglove/studio-base/components/KeyboardShort
 import MesssagePathSyntaxHelp from "@foxglove/studio-base/components/MessagePathSyntax/index.help.md";
 import { SidebarContent } from "@foxglove/studio-base/components/SidebarContent";
 import TextContent from "@foxglove/studio-base/components/TextContent";
-import { useSelectedPanels } from "@foxglove/studio-base/context/CurrentLayoutContext";
 import { useHelpInfo, HelpInfo } from "@foxglove/studio-base/context/HelpInfoContext";
 import { PanelInfo, usePanelCatalog } from "@foxglove/studio-base/context/PanelCatalogContext";
+import { DEFAULT_HELP_INFO } from "@foxglove/studio-base/providers/HelpInfoProvider";
 import isDesktopApp from "@foxglove/studio-base/util/isDesktopApp";
 
+export const MESSAGE_PATH_SYNTAX_HELP_INFO = {
+  title: "Message path syntax",
+  content: MesssagePathSyntaxHelp,
+};
 const appLinks: HelpInfo[] = [
-  { title: "Message path syntax", content: MesssagePathSyntaxHelp },
+  MESSAGE_PATH_SYNTAX_HELP_INFO,
   { title: "Keyboard shortcuts", content: KeyboardShortcutHelp },
 ];
 
@@ -62,73 +66,49 @@ const useComponentStyles = (theme: ITheme) =>
 
 export default function HelpSidebar({
   isHomeViewForTests,
-  panelTypeForTests = "",
 }: React.PropsWithChildren<{
   isHomeViewForTests?: boolean;
-  panelTypeForTests?: string;
 }>): JSX.Element {
   const theme = useTheme();
   const styles = useComponentStyles(theme);
-  const [isHomeView, setIsHomeView] = useState(
-    isHomeViewForTests == undefined ? true : isHomeViewForTests,
-  );
-  const { panelDocToDisplay: panelType, setPanelDocToDisplay } = useSelectedPanels();
   const { helpInfo, setHelpInfo } = useHelpInfo();
 
   const panelCatalog = usePanelCatalog();
-  const panelInfo = useMemo(
-    () =>
-      (panelType ? panelType : panelTypeForTests) != undefined
-        ? panelCatalog.getPanelByType(panelType ? panelType : panelTypeForTests)
-        : undefined,
-    [panelCatalog, panelType, panelTypeForTests],
-  );
+
   const sortByTitle = (a: PanelInfo, b: PanelInfo) =>
     a.title.localeCompare(b.title, undefined, { ignorePunctuation: true, sensitivity: "base" });
   const panels = panelCatalog.getPanels();
   const sortedPanels = [...panels].sort(sortByTitle);
 
-  const displayedTitle = useMemo(() => {
-    if (isHomeView) {
-      return "Help";
-    }
-    if (panelInfo?.title) {
-      return panelInfo.title;
-    }
-
-    return helpInfo.title;
-  }, [isHomeView, helpInfo.title, panelInfo?.title]);
-
-  useEffect(() => setIsHomeView(!panelInfo), [setIsHomeView, panelInfo]);
+  const isHomeView = useMemo(
+    () => (isHomeViewForTests != undefined ? isHomeViewForTests : helpInfo.content == undefined),
+    [isHomeViewForTests, helpInfo],
+  );
 
   useUnmount(() => {
     // Automatically deselect the panel we were looking at help content for when the help sidebar closes
-    if (panelType != undefined) {
-      setPanelDocToDisplay("");
+    if (helpInfo.content != undefined) {
+      setHelpInfo(DEFAULT_HELP_INFO);
     }
   });
 
   return (
     <SidebarContent
       leadingItems={
-        isHomeView
+        helpInfo.content == undefined
           ? undefined
           : [
               <Icon
                 key="back-arrow"
                 size="small"
                 style={{ marginRight: "5px" }}
-                onClick={() => {
-                  setIsHomeView(true);
-                  setHelpInfo({ title: "", content: "" });
-                  setPanelDocToDisplay("");
-                }}
+                onClick={() => setHelpInfo(DEFAULT_HELP_INFO)}
               >
                 <ChevronLeftIcon />
               </Icon>,
             ]
       }
-      title={displayedTitle}
+      title={isHomeView ? "Help" : helpInfo.title}
     >
       <Stack>
         {isHomeView ? (
@@ -140,10 +120,7 @@ export default function HelpSidebar({
                   <Link
                     key={title}
                     style={{ color: theme.semanticColors.bodyText }}
-                    onClick={() => {
-                      setIsHomeView(false);
-                      setHelpInfo({ title, content });
-                    }}
+                    onClick={() => setHelpInfo({ title, content })}
                     styles={styles.link}
                   >
                     {title}
@@ -154,11 +131,11 @@ export default function HelpSidebar({
             <Stack.Item>
               <Text styles={styles.subheader}>Panels</Text>
               <Stack tokens={{ padding: `${theme.spacing.m} 0`, childrenGap: theme.spacing.s1 }}>
-                {sortedPanels.map(({ title, type }) => (
+                {sortedPanels.map(({ title, help }) => (
                   <Link
                     key={title}
                     style={{ color: theme.semanticColors.bodyText }}
-                    onClick={() => setPanelDocToDisplay(type)}
+                    onClick={() => setHelpInfo({ title, content: help })}
                     styles={styles.link}
                   >
                     {title}
@@ -217,10 +194,8 @@ export default function HelpSidebar({
           </Stack>
         ) : (
           <Stack tokens={{ childrenGap: theme.spacing.s2 }}>
-            {helpInfo.content ? (
+            {helpInfo.content != undefined ? (
               <TextContent allowMarkdownHtml={true}>{helpInfo.content}</TextContent>
-            ) : panelInfo?.help != undefined ? (
-              <TextContent allowMarkdownHtml={true}>{panelInfo?.help}</TextContent>
             ) : (
               "Panel does not have any documentation details."
             )}

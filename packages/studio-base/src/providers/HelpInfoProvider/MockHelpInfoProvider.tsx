@@ -8,18 +8,20 @@ import HelpInfoContext, {
   IHelpInfo,
   HelpInfo,
 } from "@foxglove/studio-base/context/HelpInfoContext";
+import { DEFAULT_HELP_INFO } from "@foxglove/studio-base/providers/HelpInfoProvider";
 
-export default function HelpInfoProvider({
+export default function MockHelpInfoProvider({
+  isEmpty,
   children,
-}: React.PropsWithChildren<unknown>): JSX.Element {
-  const helpInfo = useRef<HelpInfo>({ title: "", content: "" });
+}: {
+  isEmpty?: boolean;
+  children: React.ReactNode;
+}): JSX.Element {
+  const isHelpInfoSet = isEmpty == undefined ? false : isEmpty;
+  const helpInfo = useRef<HelpInfo>(
+    isHelpInfoSet ? DEFAULT_HELP_INFO : { title: "Some title", content: <>Some help content</> },
+  );
   const helpInfoListeners = useRef(new Set<(_: HelpInfo) => void>());
-  const addHelpInfoListener = useCallback((listener: (_: HelpInfo) => void) => {
-    helpInfoListeners.current.add(listener);
-  }, []);
-  const removeHelpInfoListener = useCallback((listener: (_: HelpInfo) => void) => {
-    helpInfoListeners.current.delete(listener);
-  }, []);
 
   const getHelpInfo = useCallback((): HelpInfo => helpInfo.current, []);
   const setHelpInfo = useCallback((info: HelpInfo): void => {
@@ -32,8 +34,8 @@ export default function HelpInfoProvider({
   const value: IHelpInfo = useShallowMemo({
     getHelpInfo,
     setHelpInfo,
-    addHelpInfoListener,
-    removeHelpInfoListener,
+    addHelpInfoListener: useCallback(() => {}, []),
+    removeHelpInfoListener: useCallback(() => {}, []),
   });
 
   return <HelpInfoContext.Provider value={value}>{children}</HelpInfoContext.Provider>;

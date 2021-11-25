@@ -16,6 +16,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { PanelCatalog, PanelInfo } from "@foxglove/studio-base/context/PanelCatalogContext";
 import MockCurrentLayoutProvider from "@foxglove/studio-base/providers/CurrentLayoutProvider/MockCurrentLayoutProvider";
+import MockHelpInfoProvider from "@foxglove/studio-base/providers/HelpInfoProvider/MockHelpInfoProvider";
 import PanelSetup from "@foxglove/studio-base/stories/PanelSetup";
 import { PanelConfigSchemaEntry } from "@foxglove/studio-base/types/panels";
 
@@ -57,15 +58,17 @@ export function Home(): JSX.Element {
   return (
     <div style={{ margin: 30, height: 400 }}>
       <DndProvider backend={HTML5Backend}>
-        <MockCurrentLayoutProvider>
-          <PanelSetup
-            panelCatalog={new MockPanelCatalog()}
-            fixture={{ topics: [], datatypes: new Map(), frame: {}, layout: "Sample2!4co6n9d" }}
-            omitDragAndDrop
-          >
-            <HelpSidebar />
-          </PanelSetup>
-        </MockCurrentLayoutProvider>
+        <MockHelpInfoProvider isEmpty={true}>
+          <MockCurrentLayoutProvider>
+            <PanelSetup
+              panelCatalog={new MockPanelCatalog()}
+              fixture={{ topics: [], datatypes: new Map(), frame: {}, layout: "Sample2!4co6n9d" }}
+              omitDragAndDrop
+            >
+              <HelpSidebar />
+            </PanelSetup>
+          </MockCurrentLayoutProvider>
+        </MockHelpInfoProvider>
       </DndProvider>
     </div>
   );
@@ -75,15 +78,17 @@ export function PanelView(): JSX.Element {
   return (
     <div style={{ margin: 30, height: 400 }}>
       <DndProvider backend={HTML5Backend}>
-        <MockCurrentLayoutProvider>
-          <PanelSetup
-            panelCatalog={new MockPanelCatalog()}
-            fixture={{ topics: [], datatypes: new Map(), frame: {}, layout: "Sample2!4co6n9d" }}
-            omitDragAndDrop
-          >
-            <HelpSidebar isHomeViewForTests={false} panelTypeForTests="Sample2" />
-          </PanelSetup>
-        </MockCurrentLayoutProvider>
+        <MockHelpInfoProvider>
+          <MockCurrentLayoutProvider>
+            <PanelSetup
+              panelCatalog={new MockPanelCatalog()}
+              fixture={{ topics: [], datatypes: new Map(), frame: {}, layout: "Sample2!4co6n9d" }}
+              omitDragAndDrop
+            >
+              <HelpSidebar isHomeViewForTests={false} />
+            </PanelSetup>
+          </MockCurrentLayoutProvider>
+        </MockHelpInfoProvider>
       </DndProvider>
     </div>
   );

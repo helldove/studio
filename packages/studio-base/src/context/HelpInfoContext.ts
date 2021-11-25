@@ -8,7 +8,7 @@ import useGuaranteedContext from "@foxglove/studio-base/hooks/useGuaranteedConte
 
 export type HelpInfo = {
   title: string;
-  content: string;
+  content?: React.ReactNode;
 };
 
 export interface IHelpInfo {
